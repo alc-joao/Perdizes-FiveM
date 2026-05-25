@@ -1,0 +1,16 @@
+import gsap from 'gsap';
+import ScrollToPlugin from 'gsap/dist/ScrollToPlugin';
+import ScrollTrigger from 'gsap/dist/ScrollTrigger';
+import Draggable from 'gsap/dist/Draggable';
+import { useEffect } from 'react';
+import Observer from 'gsap/dist/Observer';
+
+const GSAPInitializer = () => {
+  useEffect(() => {
+    gsap.registerPlugin(ScrollToPlugin, ScrollTrigger, Draggable, Observer);
+  }, []);
+
+  return null;
+};
+
+export default GSAPInitializer;
