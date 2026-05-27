@@ -12,6 +12,7 @@ export const Container = styled.div`
 export const WelcomeText = styled.p`
   font-size: 1.7rem;
   font-weight: 700;
+  opacity: 70%;
 
   color: ${({ theme }) => theme.white};
 `;

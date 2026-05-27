@@ -1,4 +1,6 @@
-export const categories = ['Competitivos', 'Esportivos', 'Sedans', 'SUVS', 'Motos', 'Caminhões'];
+import { categories } from '@/constants/dealership';
+
+export { categories };
 
 export const vehicleCarouselContent = {
   hint: 'Use as setas para navegar pelos veiculos',

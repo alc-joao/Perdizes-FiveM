@@ -2,7 +2,7 @@ import { createGlobalStyle } from 'styled-components';
 
 const GlobalStyles = createGlobalStyle`
   * {
-    font-family: var(--gotham);
+    font-family: var(--font-sf-pro-display);
     box-sizing: border-box;
     padding: 0;
     margin: 0;

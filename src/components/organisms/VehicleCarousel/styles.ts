@@ -6,6 +6,7 @@ export const Container = styled.div``;
 
 export const VehicleInfo = styled.div`
   margin-bottom: 2.4rem;
+  min-height: 5.7rem;
 `;
 
 export const VehicleType = styled.p`
@@ -50,11 +51,19 @@ export const CategoryButton = styled.button<{ $active: boolean }>`
 
   font-size: 1.1rem;
 
-  transition: 0.3s ease;
+  transition:
+    background 0.3s ease,
+    color 0.3s ease,
+    transform 0.3s ease;
 
   background: ${({ theme, $active }) => ($active ? theme.gray : 'transparent')};
 
   color: ${({ theme, $active }) => ($active ? theme.black : 'rgba(255, 255, 255, 0.35)')};
+
+  &:hover {
+    transform: translateY(-0.1rem);
+    color: ${({ theme, $active }) => ($active ? theme.black : theme.white)};
+  }
 `;
 
 export const CarouselHint = styled.div`
@@ -102,6 +111,10 @@ export const VehiclesContainer = styled.div`
   overflow: hidden;
 `;
 
+export const VehiclesAnimationWrapper = styled.div`
+  width: 100%;
+`;
+
 export const VehiclesTrack = styled.div<{
   $activeVehicleIndex: number;
 }>`
@@ -109,7 +122,7 @@ export const VehiclesTrack = styled.div<{
   gap: 1rem;
 
   transform: translateX(
-    ${({ $activeVehicleIndex }) => `-${Math.max($activeVehicleIndex - 3, 0) * 29.6}rem`}
+    ${({ $activeVehicleIndex }) => `-${Math.max($activeVehicleIndex - 3, 0) * 32.5}rem`}
   );
 
   transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
@@ -136,7 +149,8 @@ export const VehicleCard = styled.div<{
 
   transition:
     transform 0.35s ease,
-    box-shadow 0.35s ease;
+    box-shadow 0.35s ease,
+    background 0.35s ease;
 
   &:hover {
     transform: translateY(-0.25rem);
@@ -228,7 +242,9 @@ export const VehicleFooter = styled.div`
     display: flex;
     align-items: center;
     gap: 0.6rem;
+
     opacity: 70%;
+
     font-size: 1.25rem;
     font-weight: 800;
 

@@ -1,4 +1,3 @@
-import { gotham } from './_gotham';
-import { roboto } from './_roboto';
+import { sfProDisplay } from './_sf-pro-display';
 
-export const fontNames = `${gotham.variable} ${roboto.variable}`;
+export const fontNames = sfProDisplay.variable;

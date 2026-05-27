@@ -1,30 +1,49 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { HeaderIntro } from '@/components/molecules/HeaderIntro';
 import { StatsPanel } from '@/components/organisms/StatsPanel';
 import { VehicleHeroInfo } from '@/components/organisms/VehicleHeroInfo';
 import { VehicleCarousel } from '@/components/organisms/VehicleCarousel';
 
+import { vehicles, userBalance } from '@/constants/dealership';
+
 import { Container, Content, TopContent, BottomContent } from './styles';
-import { vehicles, userBalance } from './constants';
 
 export default function DealershipTemplate() {
-  const [activeVehicleIndex, setActiveVehicleIndex] = useState(3);
+  const [activeCategory, setActiveCategory] = useState('Competitivos');
+  const [activeVehicleIndex, setActiveVehicleIndex] = useState(0);
 
-  const activeVehicle = vehicles[activeVehicleIndex];
+  const filteredVehicles = useMemo(() => {
+    if (activeCategory === 'Competitivos') {
+      return vehicles;
+    }
 
-  function handleNextVehicle() {
+    return vehicles.filter((vehicle) => vehicle.category === activeCategory);
+  }, [activeCategory]);
+
+  const activeVehicle = filteredVehicles[activeVehicleIndex] ?? filteredVehicles[0];
+
+  const handleNextVehicle = useCallback(() => {
+    if (!filteredVehicles.length) return;
+
     setActiveVehicleIndex((currentIndex) =>
-      currentIndex === vehicles.length - 1 ? 0 : currentIndex + 1,
+      currentIndex === filteredVehicles.length - 1 ? 0 : currentIndex + 1,
     );
-  }
+  }, [filteredVehicles.length]);
 
-  function handlePreviousVehicle() {
+  const handlePreviousVehicle = useCallback(() => {
+    if (!filteredVehicles.length) return;
+
     setActiveVehicleIndex((currentIndex) =>
-      currentIndex === 0 ? vehicles.length - 1 : currentIndex - 1,
+      currentIndex === 0 ? filteredVehicles.length - 1 : currentIndex - 1,
     );
+  }, [filteredVehicles.length]);
+
+  function handleChangeCategory(category: string) {
+    setActiveCategory(category);
+    setActiveVehicleIndex(0);
   }
 
   useEffect(() => {
@@ -38,7 +57,11 @@ export default function DealershipTemplate() {
     return () => {
       window.removeEventListener('keydown', handleKeyboard);
     };
-  }, []);
+  }, [handleNextVehicle, handlePreviousVehicle]);
+
+  if (!activeVehicle) {
+    return null;
+  }
 
   return (
     <Container>
@@ -52,8 +75,10 @@ export default function DealershipTemplate() {
 
         <BottomContent>
           <VehicleCarousel
-            vehicles={vehicles}
+            vehicles={filteredVehicles}
+            activeCategory={activeCategory}
             activeVehicleIndex={activeVehicleIndex}
+            onChangeCategory={handleChangeCategory}
             onSelectVehicle={setActiveVehicleIndex}
             onNextVehicle={handleNextVehicle}
             onPreviousVehicle={handlePreviousVehicle}

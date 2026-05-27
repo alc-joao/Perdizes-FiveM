@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 
 import {
   Container,
@@ -11,6 +11,7 @@ import {
   CategoryButton,
   CarouselHint,
   VehiclesContainer,
+  VehiclesAnimationWrapper,
   VehiclesTrack,
   VehicleCard,
   VehicleImage,
@@ -19,7 +20,6 @@ import {
 } from './styles';
 
 import { categories, vehicleCarouselContent } from './constants';
-
 import { vehicleCarouselAnimation, vehicleCardAnimation } from './animations';
 
 type Vehicle = {
@@ -37,40 +37,58 @@ type Vehicle = {
 
 type VehicleCarouselProps = {
   vehicles: Vehicle[];
-
+  activeCategory: string;
   activeVehicleIndex: number;
-
+  onChangeCategory: (category: string) => void;
   onSelectVehicle: (index: number) => void;
-
   onNextVehicle: () => void;
-
   onPreviousVehicle: () => void;
 };
 
 const MotionContainer = motion(Container);
-
 const MotionVehicleCard = motion(VehicleCard);
+const MotionVehiclesAnimationWrapper = motion(VehiclesAnimationWrapper);
 
 export function VehicleCarousel({
   vehicles,
+  activeCategory,
   activeVehicleIndex,
+  onChangeCategory,
   onSelectVehicle,
   onNextVehicle,
   onPreviousVehicle,
 }: VehicleCarouselProps) {
-  const activeVehicle = vehicles[activeVehicleIndex];
+  const activeVehicle = vehicles[activeVehicleIndex] ?? vehicles[0];
+
+  if (!activeVehicle) {
+    return null;
+  }
 
   return (
     <MotionContainer variants={vehicleCarouselAnimation} initial="hidden" animate="visible">
       <VehicleInfo>
-        <VehicleType>{activeVehicle.category}</VehicleType>
-
-        <VehicleName>{activeVehicle.title}</VehicleName>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeVehicle.id}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -16 }}
+            transition={{ duration: 0.35, ease: 'easeOut' }}
+          >
+            <VehicleType>{activeVehicle.category}</VehicleType>
+            <VehicleName>{activeVehicle.title}</VehicleName>
+          </motion.div>
+        </AnimatePresence>
       </VehicleInfo>
 
       <CategoriesWrapper>
-        {categories.map((item, index) => (
-          <CategoryButton key={item} $active={index === 0}>
+        {categories.map((item) => (
+          <CategoryButton
+            key={item}
+            type="button"
+            $active={activeCategory === item}
+            onClick={() => onChangeCategory(item)}
+          >
             {item}
           </CategoryButton>
         ))}
@@ -89,41 +107,51 @@ export function VehicleCarousel({
       </CategoriesWrapper>
 
       <VehiclesContainer>
-        <VehiclesTrack $activeVehicleIndex={activeVehicleIndex}>
-          {vehicles.map((vehicle, index) => (
-            <MotionVehicleCard
-              key={vehicle.id}
-              custom={index}
-              variants={vehicleCardAnimation}
-              initial="hidden"
-              animate="visible"
-              onClick={() => onSelectVehicle(index)}
-              $exclusive={vehicle.exclusive}
-              $active={activeVehicleIndex === index}
-            >
-              <span>{vehicle.type}</span>
+        <AnimatePresence mode="wait">
+          <MotionVehiclesAnimationWrapper
+            key={activeCategory}
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 18 }}
+            transition={{ duration: 0.35, ease: 'easeOut' }}
+          >
+            <VehiclesTrack $activeVehicleIndex={activeVehicleIndex}>
+              {vehicles.map((vehicle, index) => (
+                <MotionVehicleCard
+                  key={vehicle.id}
+                  custom={index}
+                  variants={vehicleCardAnimation}
+                  initial="hidden"
+                  animate="visible"
+                  onClick={() => onSelectVehicle(index)}
+                  $exclusive={vehicle.exclusive}
+                  $active={activeVehicleIndex === index}
+                >
+                  <span>{vehicle.type}</span>
 
-              <VehicleImage src={vehicle.image} alt={vehicle.name} />
+                  <VehicleImage src={vehicle.image} alt={vehicle.name} />
 
-              <VehicleFooter>
-                <h3>{vehicle.name}</h3>
+                  <VehicleFooter>
+                    <h3>{vehicle.name}</h3>
 
-                <p>
-                  <Icon
-                    src={
-                      vehicle.exclusive
-                        ? vehicleCarouselContent.icons.diamond
-                        : vehicleCarouselContent.icons.money
-                    }
-                    alt=""
-                  />
+                    <p>
+                      <Icon
+                        src={
+                          vehicle.exclusive
+                            ? vehicleCarouselContent.icons.diamond
+                            : vehicleCarouselContent.icons.money
+                        }
+                        alt=""
+                      />
 
-                  {vehicle.cardPrice}
-                </p>
-              </VehicleFooter>
-            </MotionVehicleCard>
-          ))}
-        </VehiclesTrack>
+                      {vehicle.cardPrice}
+                    </p>
+                  </VehicleFooter>
+                </MotionVehicleCard>
+              ))}
+            </VehiclesTrack>
+          </MotionVehiclesAnimationWrapper>
+        </AnimatePresence>
       </VehiclesContainer>
     </MotionContainer>
   );

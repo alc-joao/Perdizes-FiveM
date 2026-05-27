@@ -19,15 +19,17 @@ export const vehicleCardAnimation = {
   hidden: {
     opacity: 0,
     y: 24,
+    scale: 0.96,
   },
 
   visible: (index: number) => ({
     opacity: 1,
     y: 0,
+    scale: 1,
 
     transition: {
       delay: index * 0.06,
-      duration: 0.5,
+      duration: 0.45,
       ease: 'easeOut',
     },
   }),
