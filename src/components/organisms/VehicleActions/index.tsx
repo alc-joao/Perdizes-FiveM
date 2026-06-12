@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 
 import {
@@ -61,19 +61,16 @@ export function VehicleActions({ userBalance, vehicle }: VehicleActionsProps) {
   const isPurchase = modalType === 'purchase';
 
   const modalTitle = isPurchase ? 'Confirmação' : 'Test Drive';
-
   const modalText = isPurchase
     ? 'Deseja confirmar a aquisição deste veículo?'
     : 'Deseja iniciar uma experiência de test drive com este veículo?';
 
   const modalButtonLabel = isPurchase ? 'Confirmar compra' : 'Iniciar test drive';
-
   const successMessage = isPurchase
     ? 'Veículo adquirido com sucesso.'
     : 'Test drive iniciado com sucesso.';
 
   const vehiclePrice = vehicle.exclusive ? vehicle.diamondPrice : vehicle.cardPrice;
-
   const formattedVehiclePrice = vehicle.exclusive
     ? `${vehiclePrice} diamantes`
     : `R$ ${vehiclePrice}`;
@@ -94,6 +91,26 @@ export function VehicleActions({ userBalance, vehicle }: VehicleActionsProps) {
       handleCloseModal();
     }, 1600);
   }
+
+  useEffect(() => {
+    if (!modalType) return;
+
+    function handleKeyboard(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        handleCloseModal();
+      }
+
+      if (event.key === 'Enter') {
+        handleConfirm();
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyboard);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyboard);
+    };
+  }, [modalType]);
 
   return (
     <>
@@ -151,7 +168,6 @@ export function VehicleActions({ userBalance, vehicle }: VehicleActionsProps) {
 
               <ModalBody>
                 <ModalVehicleImage src={vehicle.image} alt={vehicle.name} />
-
                 <ModalVehicleName>{vehicle.title}</ModalVehicleName>
 
                 <ModalInfoRow>
