@@ -20,6 +20,8 @@ import {
   ModalStatusIcon,
   ModalTitle,
   ModalBody,
+  ModalVehicleImage,
+  ModalVehicleName,
   ModalInfoRow,
   ModalPriceBox,
   ModalActions,
@@ -33,8 +35,10 @@ import { vehicleHeroAnimation } from './animations';
 
 type Vehicle = {
   name: string;
+  title: string;
   cardPrice: string;
   diamondPrice: string;
+  image: string;
   exclusive: boolean;
 };
 
@@ -56,17 +60,17 @@ export function VehicleActions({ userBalance, vehicle }: VehicleActionsProps) {
 
   const isPurchase = modalType === 'purchase';
 
-  const modalTitle = isPurchase ? 'Confirmação' : 'Agendar test drive';
+  const modalTitle = isPurchase ? 'Confirmação' : 'Test Drive';
 
   const modalText = isPurchase
-    ? `O senhor(a) deseja comprar o veículo ${vehicle.name}, clique na ação abaixo para confirmar compra.`
-    : `O senhor(a) deseja agendar um test drive com o veículo ${vehicle.name}, clique na ação abaixo para confirmar.`;
+    ? 'Deseja confirmar a aquisição deste veículo?'
+    : 'Deseja iniciar uma experiência de test drive com este veículo?';
 
-  const modalButtonLabel = isPurchase ? 'Confirmar compra' : 'Agendar test drive';
+  const modalButtonLabel = isPurchase ? 'Confirmar compra' : 'Iniciar test drive';
 
   const successMessage = isPurchase
-    ? 'Compra confirmada com sucesso.'
-    : 'Test drive solicitado com sucesso.';
+    ? 'Veículo adquirido com sucesso.'
+    : 'Test drive iniciado com sucesso.';
 
   const vehiclePrice = vehicle.exclusive ? vehicle.diamondPrice : vehicle.cardPrice;
 
@@ -88,7 +92,7 @@ export function VehicleActions({ userBalance, vehicle }: VehicleActionsProps) {
 
     setTimeout(() => {
       handleCloseModal();
-    }, 1800);
+    }, 1600);
   }
 
   return (
@@ -134,18 +138,22 @@ export function VehicleActions({ userBalance, vehicle }: VehicleActionsProps) {
           >
             <ModalContent
               as={motion.div}
-              initial={{ opacity: 0, y: 26, scale: 0.96 }}
+              initial={{ opacity: 0, y: 24, scale: 0.96 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 18, scale: 0.96 }}
+              exit={{ opacity: 0, y: 16, scale: 0.96 }}
               transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
               onClick={(event) => event.stopPropagation()}
             >
               <ModalHeader>
-                <ModalStatusIcon>✓</ModalStatusIcon>
+                <ModalStatusIcon>{isPurchase ? '✓' : '◈'}</ModalStatusIcon>
                 <ModalTitle>{modalTitle}</ModalTitle>
               </ModalHeader>
 
               <ModalBody>
+                <ModalVehicleImage src={vehicle.image} alt={vehicle.name} />
+
+                <ModalVehicleName>{vehicle.title}</ModalVehicleName>
+
                 <ModalInfoRow>
                   <span>ⓘ</span>
                   <p>{modalText}</p>

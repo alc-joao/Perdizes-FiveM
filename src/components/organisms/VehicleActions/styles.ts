@@ -134,7 +134,7 @@ export const ModalOverlay = styled.div`
   align-items: center;
   justify-content: center;
 
-  background: rgba(0, 0, 0, 0.48);
+  background: rgba(0, 0, 0, 0.54);
   backdrop-filter: blur(0.8rem);
 `;
 
@@ -143,15 +143,10 @@ export const ModalContent = styled.div`
   overflow: hidden;
 
   border-radius: 1.2rem;
-  border: 0.1rem solid rgba(255, 255, 255, 0.1);
-
-  background: rgba(31, 32, 37, 0.9);
-
-  box-shadow:
-    0 2.5rem 8rem rgba(0, 0, 0, 0.55),
-    inset 0 0.1rem 0 rgba(255, 255, 255, 0.08);
-
+  background: rgba(31, 32, 37, 0.94);
   color: ${({ theme }) => theme.white};
+
+  box-shadow: 0 2.5rem 8rem rgba(0, 0, 0, 0.65);
 `;
 
 export const ModalHeader = styled.div`
@@ -163,7 +158,6 @@ export const ModalHeader = styled.div`
   gap: 1.4rem;
 
   background: rgba(31, 32, 37, 0.88);
-  border-bottom: 0.1rem solid rgba(255, 255, 255, 0.06);
 `;
 
 export const ModalStatusIcon = styled.span`
@@ -182,6 +176,31 @@ export const ModalBody = styled.div`
   padding: 2.4rem 2.8rem 2.8rem;
 `;
 
+export const ModalVehicleImage = styled.img`
+  display: block;
+
+  width: 34rem;
+  height: 13rem;
+
+  margin: 0 auto 1.2rem;
+
+  object-fit: contain;
+
+  filter: drop-shadow(0 1.4rem 2.4rem rgba(0, 0, 0, 0.42));
+`;
+
+export const ModalVehicleName = styled.h4`
+  margin-bottom: 1.8rem;
+
+  text-align: center;
+
+  font-size: 2rem;
+  font-weight: 900;
+  letter-spacing: 0.12rem;
+
+  color: ${({ theme }) => theme.white};
+`;
+
 export const ModalInfoRow = styled.div`
   display: flex;
   gap: 1.4rem;
@@ -197,13 +216,13 @@ export const ModalInfoRow = styled.div`
     font-size: 1.45rem;
     font-weight: 700;
     line-height: 1.35;
-    color: rgba(255, 255, 255, 0.48);
+    color: rgba(255, 255, 255, 0.5);
   }
 `;
 
 export const ModalPriceBox = styled.div`
   height: 5.4rem;
-  margin-bottom: 2.8rem;
+  margin-bottom: 2.2rem;
 
   border-radius: 999rem;
 
@@ -225,6 +244,16 @@ export const ModalPriceBox = styled.div`
     font-weight: 900;
     color: ${({ theme }) => theme.white};
   }
+`;
+
+export const ModalSuccessMessage = styled.p`
+  margin-bottom: 1.8rem;
+
+  color: ${({ theme }) => theme.greenYellow};
+
+  font-size: 1.4rem;
+  font-weight: 800;
+  text-align: center;
 `;
 
 export const ModalActions = styled.div`
@@ -295,14 +324,4 @@ export const ModalSecondaryButton = styled.button`
     transform: translateY(0);
     opacity: 0.82;
   }
-`;
-
-export const ModalSuccessMessage = styled.p`
-  margin-bottom: 1.8rem;
-
-  color: ${({ theme }) => theme.greenYellow};
-
-  font-size: 1.4rem;
-  font-weight: 800;
-  text-align: center;
 `;
