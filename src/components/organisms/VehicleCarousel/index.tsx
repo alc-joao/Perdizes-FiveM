@@ -70,10 +70,10 @@ export function VehicleCarousel({
         <AnimatePresence mode="wait">
           <motion.div
             key={activeVehicle.id}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+            initial={{ opacity: 0, y: 14, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -10, scale: 0.98 }}
+            transition={{ duration: 0.34, ease: [0.16, 1, 0.3, 1] }}
           >
             <VehicleType>{activeVehicle.category}</VehicleType>
             <VehicleName>{activeVehicle.title}</VehicleName>
