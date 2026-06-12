@@ -126,6 +126,7 @@ export function VehicleCarousel({
                   initial="hidden"
                   animate="visible"
                   onClick={() => onSelectVehicle(index)}
+                  tabIndex={-1}
                   $exclusive={vehicle.exclusive}
                   $active={activeVehicleIndex === index}
                 >

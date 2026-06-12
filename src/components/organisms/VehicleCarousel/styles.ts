@@ -147,11 +147,13 @@ export const VehicleCard = styled.div<{
   min-width: 31.5rem;
   height: 14.4rem;
 
-  border: none;
-  outline: none;
-
   border-radius: 0.45rem;
   overflow: hidden;
+
+  border: ${({ $active }) =>
+    $active ? 'none' : '0.1rem solid rgba(255, 255, 255, 0.08)'};
+
+  outline: none !important;
 
   background: ${({ theme, $active }) => ($active ? theme.gray : '#333337')};
 
@@ -163,7 +165,8 @@ export const VehicleCard = styled.div<{
   transition:
     transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
     background 0.35s ease,
-    box-shadow 0.35s ease;
+    box-shadow 0.35s ease,
+    border-color 0.35s ease;
 
   &:hover {
     transform: translateY(-0.1rem) scale(1.002);
@@ -173,9 +176,14 @@ export const VehicleCard = styled.div<{
   &:focus,
   &:focus-visible,
   &:active {
-    border: none;
-    outline: none;
-    box-shadow: none;
+    outline: none !important;
+    border: ${({ $active }) =>
+      $active ? 'none' : '0.1rem solid rgba(255, 255, 255, 0.08)'} !important;
+  }
+
+  &[tabindex],
+  &[data-focus-visible-added] {
+    outline: none !important;
   }
 
   span {
