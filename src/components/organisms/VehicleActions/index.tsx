@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 
 import { playSound } from '@/utils/audio';
@@ -56,25 +56,53 @@ type ModalType = 'purchase' | 'testDrive' | '';
 
 const MotionContainer = motion(Container);
 
+const MONEY_KEY = 'dealerchip_money_balance';
+const DIAMONDS_KEY = 'dealerchip_diamond_balance';
+const OWNED_KEY = 'dealerchip_owned_vehicles';
+
+function parseValue(value: string) {
+  const onlyNumbers = value.replace(/\D/g, '');
+  return Number(onlyNumbers || 0);
+}
+
+function formatMoney(value: number) {
+  return value.toLocaleString('pt-BR');
+}
+
 export function VehicleActions({ userBalance, vehicle }: VehicleActionsProps) {
   const [modalType, setModalType] = useState<ModalType>('');
   const [success, setSuccess] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
+  const [moneyBalance, setMoneyBalance] = useState(() => parseValue(userBalance.money));
+  const [diamondBalance, setDiamondBalance] = useState(() => parseValue(userBalance.diamonds));
+  const [ownedVehicles, setOwnedVehicles] = useState<string[]>([]);
+
+  const vehicleId = useMemo(() => vehicle.name || vehicle.title, [vehicle.name, vehicle.title]);
+
+  const isOwned = ownedVehicles.includes(vehicleId);
   const isPurchase = modalType === 'purchase';
+
+  const vehiclePrice = vehicle.exclusive ? vehicle.diamondPrice : vehicle.cardPrice;
+  const vehiclePriceNumber = parseValue(vehiclePrice);
 
   const modalTitle = isPurchase ? 'Confirmação' : 'Test Drive';
 
   const modalText = isPurchase
-    ? 'Deseja confirmar a aquisição deste veículo?'
+    ? isOwned
+      ? 'Este veículo já foi adquirido e está disponível na sua garagem.'
+      : 'Deseja confirmar a aquisição deste veículo?'
     : 'Deseja iniciar uma experiência de test drive com este veículo?';
 
-  const modalButtonLabel = isPurchase ? 'Confirmar compra' : 'Iniciar test drive';
+  const modalButtonLabel = isPurchase
+    ? isOwned
+      ? 'Veículo possuído'
+      : 'Confirmar compra'
+    : 'Iniciar test drive';
 
   const successMessage = isPurchase
     ? 'Veículo adquirido com sucesso.'
     : 'Test drive iniciado com sucesso.';
-
-  const vehiclePrice = vehicle.exclusive ? vehicle.diamondPrice : vehicle.cardPrice;
 
   const formattedVehiclePrice = vehicle.exclusive
     ? `${vehiclePrice} diamantes`
@@ -84,8 +112,34 @@ export function VehicleActions({ userBalance, vehicle }: VehicleActionsProps) {
     ? vehicleHeroContent.icons.diamond
     : vehicleHeroContent.icons.money;
 
+  useEffect(() => {
+    const savedMoney = localStorage.getItem(MONEY_KEY);
+    const savedDiamonds = localStorage.getItem(DIAMONDS_KEY);
+    const savedOwnedVehicles = localStorage.getItem(OWNED_KEY);
+
+    if (savedMoney) setMoneyBalance(Number(savedMoney));
+    if (savedDiamonds) setDiamondBalance(Number(savedDiamonds));
+
+    if (savedOwnedVehicles) {
+      setOwnedVehicles(JSON.parse(savedOwnedVehicles));
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem(MONEY_KEY, String(moneyBalance));
+  }, [moneyBalance]);
+
+  useEffect(() => {
+    localStorage.setItem(DIAMONDS_KEY, String(diamondBalance));
+  }, [diamondBalance]);
+
+  useEffect(() => {
+    localStorage.setItem(OWNED_KEY, JSON.stringify(ownedVehicles));
+  }, [ownedVehicles]);
+
   function handleOpenModal(type: ModalType) {
     playSound('/audio/click.mp3', 0.25);
+    setErrorMessage('');
     setModalType(type);
   }
 
@@ -93,11 +147,48 @@ export function VehicleActions({ userBalance, vehicle }: VehicleActionsProps) {
     playSound('/audio/click.mp3', 0.18);
     setModalType('');
     setSuccess(false);
+    setErrorMessage('');
   }
 
   function handleConfirm() {
+    if (!isPurchase) {
+      playSound('/audio/success.mp3', 0.4);
+      setSuccess(true);
+
+      setTimeout(() => {
+        setModalType('');
+        setSuccess(false);
+      }, 1600);
+
+      return;
+    }
+
+    if (isOwned) {
+      setErrorMessage('Você já possui este veículo.');
+      return;
+    }
+
+    if (vehicle.exclusive) {
+      if (diamondBalance < vehiclePriceNumber) {
+        setErrorMessage('Diamantes insuficientes para comprar este veículo.');
+        return;
+      }
+
+      setDiamondBalance((currentBalance) => currentBalance - vehiclePriceNumber);
+    } else {
+      if (moneyBalance < vehiclePriceNumber) {
+        setErrorMessage('Saldo insuficiente para comprar este veículo.');
+        return;
+      }
+
+      setMoneyBalance((currentBalance) => currentBalance - vehiclePriceNumber);
+    }
+
+    setOwnedVehicles((currentVehicles) => [...currentVehicles, vehicleId]);
+
     playSound('/audio/success.mp3', 0.4);
     setSuccess(true);
+    setErrorMessage('');
 
     setTimeout(() => {
       setModalType('');
@@ -123,7 +214,7 @@ export function VehicleActions({ userBalance, vehicle }: VehicleActionsProps) {
     return () => {
       window.removeEventListener('keydown', handleKeyboard);
     };
-  }, [modalType]);
+  }, [modalType, isOwned, moneyBalance, diamondBalance, vehicleId]);
 
   return (
     <>
@@ -133,21 +224,21 @@ export function VehicleActions({ userBalance, vehicle }: VehicleActionsProps) {
         <PriceRow>
           <PriceItem>
             <Icon src={vehicleHeroContent.icons.money} alt="" />
-            <span>{userBalance.money}</span>
+            <span>{formatMoney(moneyBalance)}</span>
           </PriceItem>
 
           <Divider>|</Divider>
 
           <PriceItem>
             <Icon src={vehicleHeroContent.icons.diamond} alt="" />
-            <span>{userBalance.diamonds}</span>
+            <span>{formatMoney(diamondBalance)}</span>
           </PriceItem>
         </PriceRow>
 
         <ButtonsRow>
-          <ActionButton type="button" onClick={() => handleOpenModal('purchase')}>
+          <ActionButton type="button" onClick={() => handleOpenModal('purchase')} disabled={isOwned}>
             <ButtonIcon src={vehicleHeroContent.icons.bag} alt="" />
-            {vehicleHeroContent.acquireButtonLabel}
+            {isOwned ? 'Possuído' : vehicleHeroContent.acquireButtonLabel}
           </ActionButton>
 
           <TestDriveButton type="button" onClick={() => handleOpenModal('testDrive')}>
@@ -183,6 +274,10 @@ export function VehicleActions({ userBalance, vehicle }: VehicleActionsProps) {
                 <ModalVehicleImage src={vehicle.image} alt={vehicle.name} />
                 <ModalVehicleName>{vehicle.title}</ModalVehicleName>
 
+                {isOwned && (
+                  <ModalSuccessMessage>✓ Possuído</ModalSuccessMessage>
+                )}
+
                 <ModalInfoRow>
                   <span>ⓘ</span>
                   <p>{modalText}</p>
@@ -193,10 +288,12 @@ export function VehicleActions({ userBalance, vehicle }: VehicleActionsProps) {
                   <strong>{formattedVehiclePrice}</strong>
                 </ModalPriceBox>
 
+                {errorMessage && <ModalSuccessMessage>{errorMessage}</ModalSuccessMessage>}
+
                 {success && <ModalSuccessMessage>✓ {successMessage}</ModalSuccessMessage>}
 
                 <ModalActions>
-                  <ModalPrimaryButton type="button" onClick={handleConfirm}>
+                  <ModalPrimaryButton type="button" onClick={handleConfirm} disabled={isOwned}>
                     <span>✓</span>
                     {modalButtonLabel}
                   </ModalPrimaryButton>
