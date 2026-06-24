@@ -26,11 +26,11 @@ export const Scrim = styled.div<{ $visible: boolean }>`
 
 export const Overlay = styled.div<{ $visible: boolean }>`
   position: fixed;
-  left: 50%;
-  bottom: 6%;
+  left: 48.7%;
+  bottom: 12%;
   transform: translateX(-50%);
   display: ${({ $visible }) => ($visible ? 'flex' : 'none')};
-  z-index: 9999;
+  z-index: 9;
   pointer-events: none;
 `;
 
@@ -41,17 +41,35 @@ export const Card = styled.div`
   flex-direction: column;
   align-items: flex-start;
   user-select: none;
+  z-index: 11;
 `;
+
+// medidas do Figma — usadas pelo Board/Panel/CursorBox abaixo e também
+// importadas pelo useSkillCheck pra calcular a posição do Marker
+export const CURSOR_BOX_SIZE = 61;
+export const BOARD_COLUMN_GAP = 20;
+export const SLOT_WIDTH = 51;
+export const SLOT_GAP = 15.875; // fecha exatamente os 632px do Panel (9 casas + padding)
+export const PANEL_PADDING_X = 18;
+export const PANEL_WIDTH = 632;
+export const PANEL_HEIGHT = 106;
+export const PANEL_BORDER_WIDTH = 1;
+export const TIMER_HEIGHT = 56;
+
+// título/subtítulo ficam alinhados com o Panel (coluna 2 do Board), não
+// com o CursorBox — que fica fora dessa coluna, "vazando" pra esquerda
+const TEXT_INDENT = CURSOR_BOX_SIZE + BOARD_COLUMN_GAP;
 
 export const TitleRow = styled.div`
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  margin-left: ${TEXT_INDENT}px;
 `;
 
 export const Title = styled.h1`
-  font-size: 20px;
-  font-weight: 700;
+  font-size: 24px;
+  font-weight: 400;
   letter-spacing: 0.5px;
   text-transform: uppercase;
   color: #ffffff;
@@ -59,9 +77,10 @@ export const Title = styled.h1`
 `;
 
 export const Subtitle = styled.p`
-  margin-top: 6px;
-  max-width: 300px;
-  font-size: 13px;
+  margin-top: 8px;
+  margin-left: ${TEXT_INDENT}px;
+  max-width: 400px;
+  font-size: 16px;
   line-height: 1.35;
   color: rgba(230, 232, 235, 0.78);
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
@@ -74,8 +93,8 @@ export const Subtitle = styled.p`
 // manuais pra "empurrar" cada peça pro lugar certo.
 export const Board = styled.div`
   display: grid;
-  grid-template-columns: 56px 1fr;
-  column-gap: 12px;
+  grid-template-columns: ${CURSOR_BOX_SIZE}px 1fr;
+  column-gap: ${BOARD_COLUMN_GAP}px;
   row-gap: 14px;
   align-items: center;
   margin-top: 14px;
@@ -85,7 +104,8 @@ export const Counter = styled.div`
   grid-column: 2;
   grid-row: 1;
   justify-self: center;
-  font-size: 14px;
+  font-size: 17px;
+  font-weight: 200;
   color: rgba(230, 232, 235, 0.85);
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
 `;
@@ -93,8 +113,8 @@ export const Counter = styled.div`
 export const CursorBox = styled.div`
   grid-column: 1;
   grid-row: 2;
-  width: 56px;
-  height: 56px;
+  width: ${CURSOR_BOX_SIZE}px;
+  height: ${CURSOR_BOX_SIZE}px;
   display: grid;
   place-items: center;
   border-radius: 8px;
@@ -105,15 +125,12 @@ export const CursorBox = styled.div`
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 `;
 
-// usados pra calcular a posição do Marker em cima das casas (ver index.tsx)
-export const SLOT_WIDTH = 42;
-export const SLOT_GAP = 10;
-export const PANEL_PADDING_X = 18;
-
 export const Panel = styled.div`
   grid-column: 2;
   grid-row: 2;
   position: relative;
+  width: ${PANEL_WIDTH}px;
+  height: ${PANEL_HEIGHT}px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -121,7 +138,7 @@ export const Panel = styled.div`
   padding: 16px ${PANEL_PADDING_X}px;
   border-radius: 10px;
   background: linear-gradient(180deg, rgba(42, 43, 46, 1) 5%, rgba(54, 57, 65, 0) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: ${PANEL_BORDER_WIDTH}px solid rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
   /* esconde o trecho fora-de-tela do Marker (ver useSkillCheck), pra que o
      "wrap" da animação aconteça fora da área visível, sem salto perceptível */
@@ -139,8 +156,8 @@ export const Slot = styled.div<SlotProps>`
   display: grid;
   place-items: center;
   border-radius: 6px;
-  font-size: 18px;
-  font-weight: 600;
+  font-size: 23px;
+  font-weight: 500;
   background: rgba(70, 74, 82, 0.45);
   color: rgba(242, 243, 245, 0.35);
 
@@ -156,9 +173,14 @@ export const Slot = styled.div<SlotProps>`
 // fileira, mostrando a letra da casa atual — a validação do acerto
 // acontece quando ela está sobre a casa-alvo. A posição (transform) é
 // escrita direto no DOM pelo GSAP (ver useSkillCheck), não por aqui.
+// offset vertical pra centralizar o Marker na mesma faixa dos Slots —
+// independe do padding do Panel (com align-items: center, o resultado só
+// depende da altura do Panel, da borda e da altura da casa)
+const MARKER_TOP = (PANEL_HEIGHT - 2 * PANEL_BORDER_WIDTH - SLOT_WIDTH) / 2;
+
 export const Marker = styled.div`
   position: absolute;
-  top: 16px;
+  top: ${MARKER_TOP}px;
   left: 0;
   width: ${SLOT_WIDTH}px;
   height: ${SLOT_WIDTH}px;
@@ -166,8 +188,8 @@ export const Marker = styled.div`
   place-items: center;
   border-radius: 8px;
   background: rgba(120, 124, 132, 0.95);
-  font-size: 18px;
-  font-weight: 700;
+  font-size: 23px;
+  font-weight: 500;
   color: #f2f3f5;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.45);
   pointer-events: none;
@@ -177,13 +199,14 @@ export const Marker = styled.div`
 export const TimerWrap = styled.div`
   grid-column: 2;
   grid-row: 3;
+  height: ${TIMER_HEIGHT}px;
   display: flex;
   align-items: center;
   gap: 14px;
   padding: 14px 18px;
   border-radius: 10px;
   background: linear-gradient(180deg, rgba(42, 43, 46, 1) 5%, rgba(54, 57, 65, 0) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: ${PANEL_BORDER_WIDTH}px solid rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
 `;
 
