@@ -238,7 +238,7 @@ export function VehicleActions({ userBalance, vehicle }: VehicleActionsProps) {
         <ButtonsRow>
           <ActionButton type="button" onClick={() => handleOpenModal('purchase')} disabled={isOwned}>
             <ButtonIcon src={vehicleHeroContent.icons.bag} alt="" />
-            {isOwned ? 'Possuído' : vehicleHeroContent.acquireButtonLabel}
+            {isOwned ? 'POSSUÍDO' : vehicleHeroContent.acquireButtonLabel}
           </ActionButton>
 
           <TestDriveButton type="button" onClick={() => handleOpenModal('testDrive')}>

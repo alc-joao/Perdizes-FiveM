@@ -106,7 +106,8 @@ export const CarouselHint = styled.div`
 `;
 
 export const VehiclesContainer = styled.div`
-  height: 15rem;
+  height: 16rem;
+  margin-top: -1px;
   background: #333337;
   border-radius: 0 0 1.4rem 1.4rem;
   padding: 0 1.2rem 1.2rem;
