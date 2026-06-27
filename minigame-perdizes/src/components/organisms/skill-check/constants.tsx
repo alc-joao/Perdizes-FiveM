@@ -11,6 +11,6 @@ export const skillCheckDefaults: SkillCheckConfig = {
   totalTargets: 5,
   slotCount: 9,
   durationSeconds: 81, // 01:21 como na referência
-  cursorStepMs: 850,
+  cursorStepMs: 300,
   title: 'Caixa Eletrônico',
 };
