@@ -1,36 +1,74 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Fuel Station
 
-## Getting Started
+Interface NUI (tela de navegador embutida no cliente do FiveM) que funciona como o **HUD/painel de um posto de combustível**. Exibe a porcentagem do tanque em um medidor visual animado (onda de líquido), o preço por litro e o valor total a pagar pelo abastecimento.
 
-First, run the development server:
+## Funcionalidades
+
+- Medidor de combustível em SVG com animação de onda contínua (GSAP) — o nível sobe/desce com leve "overshoot" e assentamento elástico, simulando o comportamento de um líquido real.
+- Cálculo automático da porcentagem do tanque e do valor total a pagar, a partir de `capacidadeMaxima`, `litrosAtuais` e `precoPorLitro`.
+- Painel de demonstração (`FuelDemoPanel`) com um slider para simular a variação do nível de combustível durante o desenvolvimento.
+
+> **Atenção:** a página atual (`src/app/page.tsx`) renderiza `FuelStationDemo`, que é **somente para desenvolvimento** — ela junta o card real (`FuelStation`) com o painel de slider de demonstração. Antes de usar em produção no FiveM, troque `FuelStationDemo` por `FuelStation` diretamente, alimentando-o com os dados reais enviados pelo recurso Lua. Também não há, ainda, integração NUI real (`postMessage`/callback) implementada — o componente é puramente apresentacional, controlado por props.
+
+## Tecnologias
+
+- **Next.js 15** (App Router, Turbopack) + **React 19**
+- **TypeScript 5** (modo strict)
+- **styled-components 6** para estilização
+- **GSAP 3** para a animação do medidor de combustível
+- **ESLint 9** + **Prettier** + **Husky/lint-staged** para qualidade e padronização de código
+- Gerenciador de pacotes: **Yarn**
+
+## Pré-requisitos
+
+- [Node.js](https://nodejs.org/) 20 ou superior
+- [Yarn](https://yarnpkg.com/) instalado globalmente
+
+## Instalação e execução
 
 ```bash
-npm run dev
-# or
+# 1. Instalar as dependências
+yarn install
+
+# 2. Rodar em modo desenvolvimento
 yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+A aplicação fica disponível em [http://localhost:3000](http://localhost:3000) (ou na próxima porta livre, caso a 3000 já esteja em uso).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Para gerar e rodar o build de produção:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+yarn build
+yarn start
+```
 
-## Learn More
+## Scripts disponíveis
 
-To learn more about Next.js, take a look at the following resources:
+| Script | Comando | Descrição |
+|---|---|---|
+| `dev` | `next dev --turbopack` | Inicia o servidor de desenvolvimento com Turbopack |
+| `build` | `next build` | Gera o build de produção |
+| `start` | `next start` | Roda o build de produção já gerado |
+| `lint` | `eslint src --ext .ts,.tsx,.js,.jsx` | Executa o lint do código-fonte |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Estrutura de pastas
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+public/
+  assets/background, assets/icons → imagem de fundo e ícones
+  fonts/                          → Gotham, Luxora Grotesk, Roboto
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+src/
+  app/                       → entrypoint do Next.js (layout.tsx, page.tsx)
+  components/organisms/
+    fuel-station/            → card real do HUD
+      fuel-gauge/             → medidor visual em SVG (onda animada)
+    fuel-station-demo/       → wrapper que junta o card real + o painel de demo
+    fuel-demo-panel/         → painel com slider, só para desenvolvimento/demonstração
+  hooks/
+    useFuelStation.ts        → calcula porcentagem do tanque e valor total
+    useFuelGauge.ts          → anima a onda do medidor (GSAP, sem re-render React)
+  styles/                    → tema, estilos globais e definição de fontes
+  types/                     → fuelstation.ts (config do HUD), nui.d.ts (tipagem do GetParentResourceName)
+```
