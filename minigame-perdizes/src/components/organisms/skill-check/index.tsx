@@ -20,6 +20,9 @@ export const SkillCheck: FC<SkillCheckProps> = ({
   onFinish,
 }) => {
   const [visible, setVisible] = useState(false);
+  // true quando a tela não está rodando dentro do client do FiveM (CEF) —
+  // navegador comum, seja localhost ou um preview publicado (ex.: Vercel)
+  const [isStandalone, setIsStandalone] = useState(false);
   const [config, setConfig] = useState<SkillCheckConfig>({
     totalTargets,
     slotCount,
@@ -92,11 +95,15 @@ export const SkillCheck: FC<SkillCheckProps> = ({
     return () => window.removeEventListener('message', handleNuiMessage);
   }, []);
 
-  // conveniência só pra dev: sem o NUI rodando, o card já abre ao carregar a
-  // página, pra testar sem precisar simular a mensagem do NUI. Em produção
-  // só a mensagem NUI abre o card.
+  // conveniência fora do NUI: se a tela não está rodando dentro do client do
+  // FiveM (CEF), o card já abre ao carregar a página, pra testar/demonstrar
+  // sem precisar simular a mensagem do NUI. Dentro do FiveM de verdade, só a
+  // mensagem do NUI abre o card.
   useEffect(() => {
-    if (process.env.NODE_ENV !== 'production') setVisible(true);
+    if (!window.GetParentResourceName) {
+      setIsStandalone(true);
+      setVisible(true);
+    }
   }, []);
 
   // dispara/reseta a mecânica quando o card é mostrado/escondido pelo NUI,
@@ -143,7 +150,7 @@ export const SkillCheck: FC<SkillCheckProps> = ({
 
   return (
     <>
-      {process.env.NODE_ENV !== 'production' && <S.DevBackground />}
+      {isStandalone && <S.DevBackground />}
       <S.Scrim $visible={visible} />
       <S.Overlay $visible={visible} id={SkillCheckC.id}>
         <S.Card ref={cardRef}>
